@@ -11,7 +11,7 @@ const companyRoutes = require("./routes/companies");
 const invoiceRoutes = require("./routes/invoices");
 
 app.use("/companies", companyRoutes);
-// app.use("/invoices", invoiceRoutes);
+app.use("/invoices", invoiceRoutes);
 
 /** 404 handler */
 
