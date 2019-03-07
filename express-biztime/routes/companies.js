@@ -41,12 +41,22 @@ router.get("/:code", async function(req, res, next){
     }
 })
 
-// router.post("", async function(req, res, next){
-//     try {
+router.post("", async function(req, res, next){
+    try {
+        console.log(req.body)
+        let { code, name, description } = req.body;
+        let result = await db.query(
+            `INSERT INTO companies (code, name, description)
+            VALUES ($1, $2, $3)
+            RETURNING code, name, description`,
+            [code, name, description]
+            );
 
-//     } catch (err) {
+        return res.json(result.rows[0]);
 
-//     }
-// })
+    } catch (err) {
+        return next(err);
+    }
+})
 
 module.exports = router;
