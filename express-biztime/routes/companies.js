@@ -43,8 +43,7 @@ router.get("/:code", async function(req, res, next){
 
 router.post("", async function(req, res, next){
     try {
-        debugger;
-        let { code, name, description } = req.body;
+        const { code, name, description } = req.body;
         if (!name || !code) {
             throw new ExpressError("Company name and code are required.", 422)
         }
