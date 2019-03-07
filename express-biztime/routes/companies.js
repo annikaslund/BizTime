@@ -71,16 +71,6 @@ router.post("", async function(req, res, next){
 // or error
 router.put("/:code", async function(req, res, next){
     try {
-        let existingCompany = await db.query(`SELECT code, name,
-                                              description 
-                                              FROM companies 
-                                              WHERE code = $1`, 
-                                              [req.params.code])
-
-        if (existingCompany.rows.length === 0){
-            throw new ExpressError("Company does not exist.", 404);
-        }
-
         const { code, name, description } = req.body;
 
         let result = await db.query(
@@ -89,6 +79,10 @@ router.put("/:code", async function(req, res, next){
             [code, name, description, req.params.code]
             );
 
+        if (result.rows.length === 0){
+            throw new ExpressError("Company does not exist.", 404);
+        }
+
         return res.json({"company": result.rows[0]});
 
     } catch (err) {
@@ -96,28 +90,23 @@ router.put("/:code", async function(req, res, next){
     }
 })
 
-// delete specified company in database 
+// delete specified company in database.
 router.delete("/:code", async function(req, res, next){
     try {
         let code = req.params.code;
-        let existingCompany = await db.query(`SELECT code, name,
-                                              description 
-                                              FROM companies 
-                                              WHERE code = $1`, 
-                                              [code]
-                                              );
-                                              
-        if (existingCompany.rows.length === 0){
-            throw new ExpressError("Company does not exist!", 404)
-        }
 
-        db.query(`
+        let response = await db.query(`
             DELETE FROM companies 
-            WHERE code=$1`,
+            WHERE code=$1
+            RETURNING code`,
             [code]
         );
 
-        return res.json({status: "deleted"})
+        if (response.rows.length === 0){
+            throw new ExpressError("Company does not exist!", 404);
+        }
+
+        return res.json({status: "deleted"});
     
     } catch(err){
 
