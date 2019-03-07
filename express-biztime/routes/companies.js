@@ -3,7 +3,7 @@ const ExpressError = require("../expressError")
 const router = new express.Router();
 const db = require("../db");
 
-
+// get all companies. Returns {companies: [{code, name}, ...]} or error
 router.get("", async function(req, res, next){
     try {
 
@@ -12,13 +12,15 @@ router.get("", async function(req, res, next){
              FROM companies`
         );
         
-        return res.json(result.rows);
+        return res.json({"companies": result.rows});
 
     } catch (err) {
         return next(err);
     }
 })
 
+// get information on a specific company code passed in as param
+// returns {company: {code, name, description}} or error
 router.get("/:code", async function(req, res, next){
     try {
         let code = req.params.code;
@@ -33,7 +35,7 @@ router.get("/:code", async function(req, res, next){
             throw new ExpressError("Company not found.", 404);
         };
 
-        return res.json({'company': result.rows[0]});
+        return res.json({"company": result.rows[0]});
 
     } catch(err){
 
@@ -41,6 +43,9 @@ router.get("/:code", async function(req, res, next){
     }
 })
 
+// enter in new company into database
+// Returns obj of new company: {company: {code, name, description}} 
+// or error
 router.post("", async function(req, res, next){
     try {
         const { code, name, description } = req.body;
@@ -54,11 +59,36 @@ router.post("", async function(req, res, next){
             [code, name, description]
             );
 
-        return res.json({'company': result.rows[0]});
+        return res.json({"company": result.rows[0]});
 
     } catch (err) {
         return next(err);
     }
 })
+
+// update company in database via PUT request
+// Returns obj of existing company: {company: {code, name, description}} 
+// or error
+router.put("/:code", async function(req, res, next){
+    try {
+        let existingCompany = await db.query(`SELECT code, name,
+                                              description 
+                                              FROM companies 
+                                              WHERE code = $1`, 
+                                              [req.params.code])
+        const { code, name, description } = req.body || existingCompany.rows[0];
+        let result = await db.query(
+            `UPDATE companies SET code = $1, name = $2, description =$3 WHERE code = $4
+            RETURNING code, name, description`,
+            [code, name, description, req.params.code]
+            );
+
+        return res.json({"company": result.rows[0]});
+
+    } catch (err) {
+        return next(err);
+    }
+})
+
 
 module.exports = router;
