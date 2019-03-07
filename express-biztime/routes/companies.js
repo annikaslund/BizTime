@@ -1,4 +1,5 @@
 const express = require("express");
+const ExpressError = require("../expressError")
 const router = new express.Router();
 const db = require("../db");
 
@@ -27,6 +28,10 @@ router.get("/:code", async function(req, res, next){
             WHERE code=$1`,
             [code]
             );
+        
+        if(result.rows.length === 0){
+            throw new ExpressError("Company not found.", 404);
+        };
 
         return res.json(result.rows[0]);
 
@@ -36,5 +41,12 @@ router.get("/:code", async function(req, res, next){
     }
 })
 
+// router.post("", async function(req, res, next){
+//     try {
+
+//     } catch (err) {
+
+//     }
+// })
 
 module.exports = router;
