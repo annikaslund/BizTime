@@ -76,7 +76,13 @@ router.put("/:code", async function(req, res, next){
                                               FROM companies 
                                               WHERE code = $1`, 
                                               [req.params.code])
-        const { code, name, description } = req.body || existingCompany.rows[0];
+
+        if (existingCompany.rows.length === 0){
+            throw new ExpressError("Company does not exist.", 404);
+        }
+
+        const { code, name, description } = req.body;
+
         let result = await db.query(
             `UPDATE companies SET code = $1, name = $2, description =$3 WHERE code = $4
             RETURNING code, name, description`,
@@ -90,5 +96,33 @@ router.put("/:code", async function(req, res, next){
     }
 })
 
+// delete specified company in database 
+router.delete("/:code", async function(req, res, next){
+    try {
+        let code = req.params.code;
+        let existingCompany = await db.query(`SELECT code, name,
+                                              description 
+                                              FROM companies 
+                                              WHERE code = $1`, 
+                                              [code]
+                                              );
+                                              
+        if (existingCompany.rows.length === 0){
+            throw new ExpressError("Company does not exist!", 404)
+        }
+
+        db.query(`
+            DELETE FROM companies 
+            WHERE code=$1`,
+            [code]
+        );
+
+        return res.json({status: "deleted"})
+    
+    } catch(err){
+
+        return next(err);
+    }
+})
 
 module.exports = router;
