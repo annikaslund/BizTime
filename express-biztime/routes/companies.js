@@ -43,8 +43,11 @@ router.get("/:code", async function(req, res, next){
 
 router.post("", async function(req, res, next){
     try {
-        // console.log(req.body)
+        debugger;
         let { code, name, description } = req.body;
+        if (!name || !code) {
+            throw new ExpressError("Company name and code are required.", 422)
+        }
         let result = await db.query(
             `INSERT INTO companies (code, name, description)
             VALUES ($1, $2, $3)
