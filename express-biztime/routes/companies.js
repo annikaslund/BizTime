@@ -23,7 +23,7 @@ router.get("/:code", async function(req, res, next){
     try {
         let code = req.params.code;
         let result = await db.query(
-            `SELECT code
+            `SELECT code, name, description
             FROM companies
             WHERE code=$1`,
             [code]
@@ -33,7 +33,7 @@ router.get("/:code", async function(req, res, next){
             throw new ExpressError("Company not found.", 404);
         };
 
-        return res.json(result.rows[0]);
+        return res.json({'company': result.rows[0]});
 
     } catch(err){
 
@@ -54,7 +54,7 @@ router.post("", async function(req, res, next){
             [code, name, description]
             );
 
-        return res.json(result.rows[0]);
+        return res.json({'company': result.rows[0]});
 
     } catch (err) {
         return next(err);
