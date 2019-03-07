@@ -43,7 +43,7 @@ router.get("/:code", async function(req, res, next){
 
 router.post("", async function(req, res, next){
     try {
-        console.log(req.body)
+        // console.log(req.body)
         let { code, name, description } = req.body;
         let result = await db.query(
             `INSERT INTO companies (code, name, description)
