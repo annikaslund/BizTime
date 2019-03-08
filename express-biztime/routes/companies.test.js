@@ -24,6 +24,15 @@ describe("GET /companies", function(){
     })
 })
 
+describe("GET /companies/:code", function(){
+    test("Gets one company", async function(){
+        const response = await request(app)
+            .get("/companies/TEST");
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({ company: { code: "TEST", name: "TESTING", description: "SUPERTEST"} });
+    })
+})
+
 afterEach(async () => {
   await db.query(`DELETE FROM companies`);
 });
