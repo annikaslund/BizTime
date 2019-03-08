@@ -33,6 +33,25 @@ describe("GET /companies/:code", function(){
     })
 })
 
+describe("POST /companies", function(){
+    test("Adds one company", async function(){
+        const response = await request(app)
+            .post("/companies")
+            .send({
+                code: "TEST2",
+                name: "TESTING2",
+                description: "SUPERTEST2"
+            });
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({ company: { code: "TEST2", name: "TESTING2", description: "SUPERTEST2"} });
+
+        let companies = await request(app)
+            .get("/companies");
+
+        expect(companies.rows.length).toEqual(2);
+    })
+})
+
 afterEach(async () => {
   await db.query(`DELETE FROM companies`);
 });
