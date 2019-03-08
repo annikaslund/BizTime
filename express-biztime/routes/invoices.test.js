@@ -50,50 +50,56 @@ describe("GET /invoices/:code", function(){
     })
 })
 
-// describe("POST /invoices", function(){
-//     test("Adds one invoice", async function(){
-//         const response = await request(app)       .post("/invoices")
-//             .send({
-//                 id: 26,
-//                 comp_Code: 'TEST',
-//                 amt: 200
-//             });
-//         expect(response.statusCode).toEqual(200);
-//         expect(response.body).toEqual({
-//             "invoice": {
-//               "id": 26,
-//               "comp_code": 'TEST',
-//               "amt": 200,
-//               "paid": false,
-//               "add_date": "2019-03-07T08:00:00.000Z",
-//               "paid_date": null
-//             }
-//           });
+describe("POST /invoices", function(){
+    test("Adds one invoice", async function(){
+        const response = await request(app)       .post("/invoices")
+            .send({
+                comp_code: 'TEST',
+                amt: 200
+            });
+        expect(response.statusCode).toEqual(200);
+        expect(response.body).toEqual({
+            "invoice": {
+              "id": response.body.invoice.id,
+              "comp_code": 'TEST',
+              "amt": 200,
+              "paid": false,
+              "add_date": "2019-03-07T08:00:00.000Z",
+              "paid_date": null
+            }
+          });
 
-//         const response1 = await request(app).get("/invoices");
+        const response1 = await request(app).get("/invoices");
 
-//         expect(response1.body.invoices.length).toEqual(2);
-//     })
-// })
+        expect(response1.body.invoices.length).toEqual(2);
+    })
+})
 
-// describe("PUT /companies/:code", function(){
-//     test("Updates one company", async function(){
-//         const response = await request(app)
-//             .put("/companies/TEST")
-//             .send({
-//                 code: "TEST2",
-//                 name: "TESTING2",
-//                 description: "SUPERTEST2"
-//             });
+describe("PUT /invoices/:code", function(){
+    test("Updates one invoice", async function(){
+        const response = await request(app)
+            .put("/invoices/25")
+            .send({
+                amt: 600
+            });
         
-//         expect(response.statusCode).toEqual(200);
-//         expect(response.body).toEqual({ company: { code: "TEST2", name: "TESTING2", description: "SUPERTEST2"} });
+        expect(response.statusCode).toEqual(200);
+        expect(response.body).toEqual({
+            "invoice": {
+              "id": 25,
+              "comp_code": "TEST",
+              "amt": 600,
+              "paid": false,
+              "add_date": "2019-03-07T08:00:00.000Z",
+              "paid_date": null
+            }
+          });
 
-//         const response1 = await request(app).get("/companies");
+        const response1 = await request(app).get("/invoices");
 
-//         expect(response1.body.companies.length).toEqual(1);
-//     })
-// })
+        expect(response1.body.invoices.length).toEqual(1);
+    })
+})
 
 describe("DELETE /invoices/:id", function(){
     test("Deletes one company", async function(){
