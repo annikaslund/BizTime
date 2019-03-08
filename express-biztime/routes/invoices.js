@@ -75,6 +75,60 @@ router.post("", async function(req, res, next) {
     }
 })
 
+// update invoice in database via PUT request
+// Returns obj of existing invoice: {invoice: {id, comp_code, amt, paid, add_date, paid_date}}
+// or error
+router.put("/:id", async function(req, res, next){
+    try {
+        const amt = req.body.amt;
 
+        // if passed not a number in amount, throws error
+        // if(typeof Number(amt) !== "number"){
+        //     throw new ExpressError("Amount is not a valid number.", 422);
+        // }
+
+        const id = req.params.id;
+
+        let result = await db.query(
+            `UPDATE invoices SET amt=$1 
+             WHERE id=$2
+             RETURNING id, comp_code, amt, paid, add_date, paid_date`,
+            [amt, id]
+            );
+
+        if (result.rows.length === 0){
+            throw new ExpressError("Invoice does not exist.", 404);
+        }
+
+        return res.json({"invoice": result.rows[0]});
+
+    } catch (err) {
+        return next(err);
+    }
+})
+
+// delete specified invoice in database.
+router.delete("/:id", async function(req, res, next){
+    try {
+        let id = req.params.id;
+
+        let response = await db.query(`
+            DELETE FROM invoices 
+            WHERE id=$1
+            RETURNING id`,
+            [id]
+        );
+
+        if (response.rows.length === 0){
+            throw new ExpressError("Invoice does not exist!", 404);
+        }
+
+        return res.json({status: "deleted"});
+    
+    } catch(err){
+
+        return next(err);
+    }
+})
 
 module.exports = router;
