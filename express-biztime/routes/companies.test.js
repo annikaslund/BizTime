@@ -19,7 +19,7 @@ describe("GET /companies", function(){
     test("Gets all companies", async function(){
         const response = await request(app)
             .get("/companies");
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toEqual(200);
         expect(response.body).toEqual({ companies: [{ code: "TEST", name: "TESTING" }] })
     })
 })
@@ -28,7 +28,7 @@ describe("GET /companies/:code", function(){
     test("Gets one company", async function(){
         const response = await request(app)
             .get("/companies/TEST");
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toEqual(200);
         expect(response.body).toEqual({ company: { code: "TEST", name: "TESTING", description: "SUPERTEST"} });
     })
 })
@@ -42,13 +42,47 @@ describe("POST /companies", function(){
                 name: "TESTING2",
                 description: "SUPERTEST2"
             });
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toEqual(200);
         expect(response.body).toEqual({ company: { code: "TEST2", name: "TESTING2", description: "SUPERTEST2"} });
 
-        let companies = await request(app)
-            .get("/companies");
+        const response1 = await request(app).get("/companies");
 
-        expect(companies.rows.length).toEqual(2);
+        expect(response1.body.companies.length).toEqual(2);
+    })
+})
+
+describe("PUT /companies/:code", function(){
+    test("Updates one company", async function(){
+        const response = await request(app)
+            .put("/companies/TEST")
+            .send({
+                code: "TEST2",
+                name: "TESTING2",
+                description: "SUPERTEST2"
+            });
+        
+        expect(response.statusCode).toEqual(200);
+        expect(response.body).toEqual({ company: { code: "TEST2", name: "TESTING2", description: "SUPERTEST2"} });
+
+        const response1 = await request(app).get("/companies");
+
+        expect(response1.body.companies.length).toEqual(1);
+    })
+})
+
+describe("DELETE /companies/:code", function(){
+    test("Deletes one company", async function(){
+        const response = await request(app)
+            .delete("/companies/TEST");
+        
+        expect(response.statusCode).toEqual(200);
+        expect(response.body).toEqual({
+            "status": "deleted"
+          });
+
+        const response1 = await request(app).get("/companies");
+
+        expect(response1.body.companies.length).toEqual(0);
     })
 })
 
