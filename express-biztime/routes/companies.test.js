@@ -6,8 +6,6 @@ const app = require("../app");
 
 let db = require("../db")
 
-// let company = {"code": "TEST", "name": "TESTING", "description": "SUPERTEST"}
-
 beforeEach(async () => {
     await db.query(`
         INSERT INTO companies (code, name, description)
